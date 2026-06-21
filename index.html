@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Contrôle Passagers Ferry</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h1>Contrôle Passagers Ferry</h1>
+
+    <input type="file" id="excelFile" accept=".xlsx,.xls">
+
+    <div id="resultat">
+        Aucun fichier chargé
+    </div>
+<h2>Statistiques</h2>
+
+<div id="stats">
+    Total : 0<br>
+    Contrôlés : 0<br>
+    Restants : 0
+</div>
+
+<hr>
+
+<h2>Recherche passager</h2>
+
+<input
+    id="nomRecherche"
+    placeholder="Nom">
+
+<input
+    id="prenomRecherche"
+    placeholder="Prénom">
+
+<button id="btnRecherche">
+    Rechercher
+</button>
+
+<div id="resultatRecherche"></div>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+</html>
