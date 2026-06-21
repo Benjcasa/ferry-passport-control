@@ -1,13 +1,27 @@
 body {
     font-family: Arial, sans-serif;
     padding: 20px;
+    max-width: 900px;
+    margin: auto;
 }
 
 h1 {
     color: #003366;
 }
 
-#resultat {
+input {
+    padding: 8px;
+    margin: 5px;
+}
+
+button {
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+#resultat,
+#stats,
+#resultatRecherche {
     margin-top: 20px;
     padding: 10px;
     border: 1px solid #ccc;

@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contrôle Passagers Ferry</title>
 
     <link rel="stylesheet" href="style.css">
@@ -17,31 +18,29 @@
     <div id="resultat">
         Aucun fichier chargé
     </div>
-<h2>Statistiques</h2>
 
-<div id="stats">
-    Total : 0<br>
-    Contrôlés : 0<br>
-    Restants : 0
-</div>
+    <h2>Statistiques</h2>
 
-<hr>
+    <div id="stats">
+        Total : 0<br>
+        Contrôlés : 0<br>
+        Restants : 0
+    </div>
 
-<h2>Recherche passager</h2>
+    <hr>
 
-<input
-    id="nomRecherche"
-    placeholder="Nom">
+    <h2>Recherche passager</h2>
 
-<input
-    id="prenomRecherche"
-    placeholder="Prénom">
+    <input id="nomRecherche" placeholder="Nom">
 
-<button id="btnRecherche">
-    Rechercher
-</button>
+    <input id="prenomRecherche" placeholder="Prénom">
 
-<div id="resultatRecherche"></div>
+    <button id="btnRecherche">
+        Rechercher
+    </button>
+
+    <div id="resultatRecherche"></div>
+
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script src="app.js"></script>
 

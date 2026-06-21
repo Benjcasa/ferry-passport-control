@@ -1,18 +1,28 @@
 let passagers = [];
 
-chargerDonneesSauvegardees();
+document.addEventListener("DOMContentLoaded", () => {
 
-document
-.getElementById("excelFile")
-.addEventListener("change", lireExcel);
+    document
+        .getElementById("excelFile")
+        .addEventListener("change", lireExcel);
+
+    document
+        .getElementById("btnRecherche")
+        .addEventListener("click", rechercherPassager);
+
+    chargerDonneesSauvegardees();
+
+});
 
 function lireExcel(event) {
 
     const fichier = event.target.files[0];
 
+    if (!fichier) return;
+
     const reader = new FileReader();
 
-    reader.onload = function(e) {
+    reader.onload = function (e) {
 
         const data = new Uint8Array(e.target.result);
 
@@ -40,141 +50,133 @@ function lireExcel(event) {
                 }
 
                 passagers.push({
-                    dossier: row["N° dossier"],
-                    nom: row["Nom"],
-                    prenom: row["Prénom"],
-                    naissance: row["Date de naissance"],
-                    controle: false
+                    dossier: row["N° dossier"] || "",
+                    nom: row["Nom"] || "",
+                    prenom: row["Prénom"] || "",
+                    naissance: row["Date de naissance"] || "",
+                    controle: false,
+                    heureControle: ""
                 });
 
             });
 
         });
 
-        document.getElementById("resultat").innerHTML = `
-            <h2>Statistiques</h2>
-            <p>Passagers : ${passagers.length}</p>
-        `;
+        sauvegarderDonnees();
+
+        document.getElementById("resultat").innerHTML =
+            "Passagers chargés : " + passagers.length;
 
         mettreAJourStats();
-
     };
 
     reader.readAsArrayBuffer(fichier);
-document
-.getElementById("btnRecherche")
-.addEventListener("click", rechercherPassager);
+}
 
 function rechercherPassager() {
 
-    const nom =
-        document
+    const nom = document
         .getElementById("nomRecherche")
         .value
         .trim()
         .toUpperCase();
 
-    const prenom =
-        document
+    const prenom = document
         .getElementById("prenomRecherche")
         .value
         .trim()
         .toUpperCase();
 
-    const passager =
-        passagers.find(p =>
+    const passager = passagers.find(p =>
 
-            String(p.nom)
+        String(p.nom)
             .toUpperCase()
             .includes(nom)
 
-            &&
+        &&
 
-            String(p.prenom)
+        String(p.prenom)
             .toUpperCase()
             .includes(prenom)
 
-        );
+    );
 
     const resultat =
-        document
-        .getElementById(
-            "resultatRecherche"
-        );
+        document.getElementById("resultatRecherche");
 
-    if(passager){
+    if (!passager) {
 
-       if(passager.controle){
+        resultat.innerHTML =
+            "<h3 style='color:red'>Passager introuvable</h3>";
+
+        return;
+    }
+
+    if (passager.controle) {
 
         resultat.innerHTML = `
             <h3 style="color:orange">
-            Déjà contrôlé
+                Déjà contrôlé
             </h3>
 
             <p>
-            ${passager.nom}
-            ${passager.prenom}
+                ${passager.nom} ${passager.prenom}
             </p>
 
             <p>
-            Heure :
-            ${passager.heureControle}
+                Heure :
+                ${passager.heureControle}
             </p>
         `;
 
-    } else {
-
-        resultat.innerHTML = `
-            <h3 style="color:green">
-            Passager trouvé
-            </h3>
-
-            <p>
-            ${passager.nom}
-            ${passager.prenom}
-            </p>
-
-            <p>
-            Dossier :
-            ${passager.dossier}
-            </p>
-
-            <button
-                onclick="validerControle('${passager.dossier}')">
-
-                ✓ VALIDER LE CONTRÔLE
-
-            </button>
-        `;
-
+        return;
     }
 
-}
-}
-}
-function validerControle(dossier){
+    resultat.innerHTML = `
+        <h3 style="color:green">
+            Passager trouvé
+        </h3>
 
-    const passager =
-        passagers.find(
-            p => p.dossier == dossier
-        );
+        <p>
+            ${passager.nom} ${passager.prenom}
+        </p>
 
-    if(!passager) return;
+        <p>
+            Dossier :
+            ${passager.dossier}
+        </p>
+
+        <button onclick="validerControle('${passager.dossier}')">
+            ✓ VALIDER LE CONTRÔLE
+        </button>
+    `;
+}
+
+function validerControle(dossier) {
+
+    const passager = passagers.find(
+        p => p.dossier == dossier
+    );
+
+    if (!passager) return;
 
     passager.controle = true;
 
     passager.heureControle =
-        new Date().toLocaleString(
-            "fr-FR"
-        );
-        sauvegarderDonnees();
-        mettreAJourStats();
+        new Date().toLocaleString("fr-FR");
 
-        alert(
-        "Contrôle enregistré"
+    sauvegarderDonnees();
+
+    mettreAJourStats();
+
+    alert(
+        `${passager.nom} ${passager.prenom}
+Contrôlé à ${passager.heureControle}`
     );
 
+    rechercherPassager();
 }
+
 function mettreAJourStats() {
 
     const total = passagers.length;
@@ -187,37 +189,30 @@ function mettreAJourStats() {
     const restants =
         total - controles;
 
-    document
-        .getElementById("stats")
-        .innerHTML = `
+    document.getElementById("stats").innerHTML = `
         Total : ${total}<br>
         Contrôlés : ${controles}<br>
         Restants : ${restants}
     `;
 }
+
 function sauvegarderDonnees() {
 
     localStorage.setItem(
         "passagers",
         JSON.stringify(passagers)
     );
-
 }
 
 function chargerDonneesSauvegardees() {
 
     const donnees =
-        localStorage.getItem(
-            "passagers"
-        );
+        localStorage.getItem("passagers");
 
-    if(donnees){
+    if (!donnees) return;
 
-        passagers =
-            JSON.parse(donnees);
+    passagers =
+        JSON.parse(donnees);
 
-        mettreAJourStats();
-
-    }
-
+    mettreAJourStats();
 }
