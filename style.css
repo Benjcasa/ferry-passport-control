@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     padding: 20px;
-    max-width: 900px;
+    max-width: 1000px;
     margin: auto;
 }
 
@@ -10,8 +10,9 @@ h1 {
 }
 
 input {
-    padding: 8px;
+    padding: 10px;
     margin: 5px;
+    width: 300px;
 }
 
 button {
@@ -25,4 +26,18 @@ button {
     margin-top: 20px;
     padding: 10px;
     border: 1px solid #ccc;
+}
+
+.passager {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 5px 0;
+}
+
+.deja-controle {
+    background-color: #ffe7a8;
+}
+
+.non-controle {
+    background-color: #dff7df;
 }

@@ -7,11 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .addEventListener("change", lireExcel);
 
     document
-        .getElementById("btnRecherche")
-        .addEventListener("click", rechercherPassager);
+        .getElementById("recherche")
+        .addEventListener("input", rechercherInstantane);
 
     chargerDonneesSauvegardees();
-
 });
 
 function lireExcel(event) {
@@ -53,13 +52,10 @@ function lireExcel(event) {
                     dossier: row["N° dossier"] || "",
                     nom: row["Nom"] || "",
                     prenom: row["Prénom"] || "",
-                    naissance: row["Date de naissance"] || "",
                     controle: false,
                     heureControle: ""
                 });
-
             });
-
         });
 
         sauvegarderDonnees();
@@ -73,90 +69,73 @@ function lireExcel(event) {
     reader.readAsArrayBuffer(fichier);
 }
 
-function rechercherPassager() {
+function rechercherInstantane() {
 
-    const nom = document
-        .getElementById("nomRecherche")
+    const texte = document
+        .getElementById("recherche")
         .value
         .trim()
         .toUpperCase();
-
-    const prenom = document
-        .getElementById("prenomRecherche")
-        .value
-        .trim()
-        .toUpperCase();
-
-    const passager = passagers.find(p =>
-
-        String(p.nom)
-            .toUpperCase()
-            .includes(nom)
-
-        &&
-
-        String(p.prenom)
-            .toUpperCase()
-            .includes(prenom)
-
-    );
 
     const resultat =
         document.getElementById("resultatRecherche");
 
-    if (!passager) {
-
-        resultat.innerHTML =
-            "<h3 style='color:red'>Passager introuvable</h3>";
-
+    if (texte.length < 2) {
+        resultat.innerHTML = "";
         return;
     }
 
-    if (passager.controle) {
+    const trouves = passagers
+        .filter(p =>
+            String(p.nom)
+            .toUpperCase()
+            .startsWith(texte)
+        )
+        .slice(0, 20);
 
-        resultat.innerHTML = `
-            <h3 style="color:orange">
-                Déjà contrôlé
-            </h3>
+    let html = "";
 
-            <p>
-                ${passager.nom} ${passager.prenom}
-            </p>
+    trouves.forEach(p => {
 
-            <p>
-                Heure :
-                ${passager.heureControle}
-            </p>
+        html += `
+            <div class="passager ${p.controle ? 'deja-controle' : 'non-controle'}">
+
+                <strong>
+                    ${p.nom} ${p.prenom}
+                </strong><br>
+
+                Dossier : ${p.dossier}<br>
         `;
 
-        return;
-    }
+        if (p.controle) {
 
-    resultat.innerHTML = `
-        <h3 style="color:green">
-            Passager trouvé
-        </h3>
+            html += `
+                Déjà contrôlé :
+                ${p.heureControle}
+            `;
 
-        <p>
-            ${passager.nom} ${passager.prenom}
-        </p>
+        } else {
 
-        <p>
-            Dossier :
-            ${passager.dossier}
-        </p>
+            html += `
+                <button
+                    onclick="validerControle('${p.dossier}')">
+                    Contrôler
+                </button>
+            `;
+        }
 
-        <button onclick="validerControle('${passager.dossier}')">
-            ✓ VALIDER LE CONTRÔLE
-        </button>
-    `;
+        html += "</div>";
+    });
+
+    resultat.innerHTML = html;
 }
 
 function validerControle(dossier) {
 
-    const passager = passagers.find(
-        p => p.dossier == dossier
-    );
+    const passager =
+        passagers.find(
+            p => p.dossier == dossier
+        );
 
     if (!passager) return;
 
@@ -169,12 +148,7 @@ function validerControle(dossier) {
 
     mettreAJourStats();
 
-    alert(
-        `${passager.nom} ${passager.prenom}
-Contrôlé à ${passager.heureControle}`
-    );
-
-    rechercherPassager();
+    rechercherInstantane();
 }
 
 function mettreAJourStats() {
