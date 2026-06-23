@@ -37,10 +37,6 @@ function lireExcel(event) {
 
             const rows = XLSX.utils.sheet_to_json(sheet);
 
-            if (rows.length > 0) {
-                alert(JSON.stringify(rows[0], null, 2));
-            }
-
             rows.forEach(row => {
 
                 const nom = String(row["Nom"] || "").trim();
@@ -54,20 +50,22 @@ function lireExcel(event) {
 
                 passagers.push({
                     id: passagers.length,
+
                     dossier: row["N° dossier"] || "",
+
                     nom: row["Nom"] || "",
+
                     prenom: row["Prénom"] || "",
 
-                    naissance:
+                    naissance: convertirDateExcel(
                         row["Date de naissance"] ||
                         row["Date de\nnaissance"] ||
                         row["Date de\r\nnaissance"] ||
-                        row["Date de naissance "] ||
-                        row["Date de\nnaissance "] ||
-                        row["DATE DE NAISSANCE"] ||
-                        "",
+                        ""
+                    ),
 
                     controle: false,
+
                     heureControle: ""
                 });
             });
@@ -199,6 +197,22 @@ function mettreAJourStats() {
         Contrôlés : ${controles}<br>
         Restants : ${restants}
     `;
+}
+
+function convertirDateExcel(valeur) {
+
+    if (!valeur) return "";
+
+    if (typeof valeur === "number") {
+
+        const date = new Date(
+            (valeur - 25569) * 86400 * 1000
+        );
+
+        return date.toLocaleDateString("fr-FR");
+    }
+
+    return valeur;
 }
 
 function sauvegarderDonnees() {
