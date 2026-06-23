@@ -49,9 +49,11 @@ function lireExcel(event) {
                 }
 
                 passagers.push({
+                    id: passagers.length,
                     dossier: row["N° dossier"] || "",
                     nom: row["Nom"] || "",
                     prenom: row["Prénom"] || "",
+                    naissance: row["Date de naissance"] || "",
                     controle: false,
                     heureControle: ""
                 });
@@ -86,12 +88,20 @@ function rechercherInstantane() {
     }
 
     const trouves = passagers
-        .filter(p =>
-            String(p.nom)
-            .toUpperCase()
-            .startsWith(texte)
-        )
-        .slice(0, 20);
+        .filter(p => {
+
+            const recherche =
+                (
+                    p.nom + " " +
+                    p.prenom + " " +
+                    p.naissance
+                )
+                .toUpperCase();
+
+            return recherche.includes(texte);
+
+        })
+        .slice(0, 30);
 
     let html = "";
 
@@ -104,37 +114,45 @@ function rechercherInstantane() {
                     ${p.nom} ${p.prenom}
                 </strong><br>
 
-                Dossier : ${p.dossier}<br>
+                Date de naissance :
+                ${p.naissance || "-"}<br>
+
+                Dossier :
+                ${p.dossier || "-"}<br>
         `;
 
         if (p.controle) {
 
             html += `
-                Déjà contrôlé :
-                ${p.heureControle}
+                <span style="color:orange;font-weight:bold;">
+                    Déjà contrôlé :
+                    ${p.heureControle}
+                </span>
             `;
 
         } else {
 
             html += `
                 <button
-                    onclick="validerControle('${p.dossier}')">
+                    onclick="validerControle(${p.id})">
                     Contrôler
                 </button>
             `;
         }
 
-        html += "</div>";
+        html += `
+            </div>
+        `;
     });
 
     resultat.innerHTML = html;
 }
 
-function validerControle(dossier) {
+function validerControle(id) {
 
     const passager =
         passagers.find(
-            p => p.dossier == dossier
+            p => p.id === id
         );
 
     if (!passager) return;
