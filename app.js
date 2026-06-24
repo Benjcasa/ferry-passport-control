@@ -66,7 +66,11 @@ function lireExcel(event) {
 
                     controle: false,
 
-                    heureControle: ""
+                    heureControle: "",
+
+                    cartouches: 0,
+
+                    bouteilles: 0
                 });
             });
         });
@@ -139,6 +143,22 @@ function rechercherInstantane() {
                     Déjà contrôlé :
                     ${p.heureControle}
                 </span>
+
+                <br><br>
+
+                Cartouches :
+                <strong>${p.cartouches}</strong>
+
+                <button onclick="modifierCartouches(${p.id},1)">+1</button>
+                <button onclick="modifierCartouches(${p.id},-1)">-1</button>
+
+                <br><br>
+
+                Bouteilles :
+                <strong>${p.bouteilles}</strong>
+
+                <button onclick="modifierBouteilles(${p.id},1)">+1</button>
+                <button onclick="modifierBouteilles(${p.id},-1)">-1</button>
             `;
 
         } else {
@@ -170,12 +190,60 @@ function validerControle(id) {
 
     passager.controle = true;
 
+    passager.cartouches = 0;
+
+    passager.bouteilles = 0;
+
     passager.heureControle =
         new Date().toLocaleString("fr-FR");
 
     sauvegarderDonnees();
 
     mettreAJourStats();
+
+    rechercherInstantane();
+}
+
+function modifierCartouches(id, variation) {
+
+    const passager =
+        passagers.find(
+            p => p.id === id
+        );
+
+    if (!passager) return;
+
+    passager.cartouches += variation;
+
+    if (passager.cartouches < 0)
+        passager.cartouches = 0;
+
+    if (passager.cartouches > 2)
+        passager.cartouches = 2;
+
+    sauvegarderDonnees();
+
+    rechercherInstantane();
+}
+
+function modifierBouteilles(id, variation) {
+
+    const passager =
+        passagers.find(
+            p => p.id === id
+        );
+
+    if (!passager) return;
+
+    passager.bouteilles += variation;
+
+    if (passager.bouteilles < 0)
+        passager.bouteilles = 0;
+
+    if (passager.bouteilles > 2)
+        passager.bouteilles = 2;
+
+    sauvegarderDonnees();
 
     rechercherInstantane();
 }
