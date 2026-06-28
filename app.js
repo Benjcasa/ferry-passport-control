@@ -252,18 +252,27 @@ function mettreAJourStats() {
 
     const total = passagers.length;
 
-    const controles =
-        passagers.filter(
-            p => p.controle
-        ).length;
+    const controles = passagers.filter(p => p.controle).length;
 
-    const restants =
-        total - controles;
+    const restants = total - controles;
+
+    const cartouches = passagers.reduce(
+        (somme, p) => somme + (p.cartouches || 0),
+        0
+    );
+
+    const bouteilles = passagers.reduce(
+        (somme, p) => somme + (p.bouteilles || 0),
+        0
+    );
 
     document.getElementById("stats").innerHTML = `
         Total : ${total}<br>
         Contrôlés : ${controles}<br>
-        Restants : ${restants}
+        Restants : ${restants}<br><br>
+
+        🚬 Cartouches : <strong>${cartouches}</strong><br>
+        🍾 Bouteilles : <strong>${bouteilles}</strong>
     `;
 }
 
