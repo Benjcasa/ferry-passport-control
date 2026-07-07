@@ -270,13 +270,15 @@ function mettreAJourStats() {
         0
     );
 
-   document.getElementById("stats").innerHTML = `
-    🚬 Total cartouches :
-    <strong>${cartouches}</strong><br>
+    document.getElementById("stats").innerHTML = `
+        🚬 Total cartouches :
+        <strong>${cartouches}</strong><br>
 
-    🍾 Total bouteilles :
-    <strong>${bouteilles}</strong>
-`;
+        🍾 Total bouteilles :
+        <strong>${bouteilles}</strong>
+    `;
+}
+
 
 function convertirDateExcel(valeur) {
 
@@ -294,6 +296,7 @@ function convertirDateExcel(valeur) {
     return valeur;
 }
 
+
 function sauvegarderDonnees() {
 
     localStorage.setItem(
@@ -301,6 +304,7 @@ function sauvegarderDonnees() {
         JSON.stringify(passagers)
     );
 }
+
 
 function chargerDonneesSauvegardees() {
 
