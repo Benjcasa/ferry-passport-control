@@ -222,7 +222,9 @@ function modifierCartouches(id, variation) {
         passager.cartouches = 2;
 
     sauvegarderDonnees();
-
+    
+    mettreAJourStats();
+    
     rechercherInstantane();
 }
 
@@ -244,7 +246,9 @@ function modifierBouteilles(id, variation) {
         passager.bouteilles = 2;
 
     sauvegarderDonnees();
-
+    
+    mettreAJourStats();
+    
     rechercherInstantane();
 }
 
@@ -266,15 +270,13 @@ function mettreAJourStats() {
         0
     );
 
-    document.getElementById("stats").innerHTML = `
-        Total : ${total}<br>
-        Contrôlés : ${controles}<br>
-        Restants : ${restants}<br><br>
+   document.getElementById("stats").innerHTML = `
+    🚬 Total cartouches :
+    <strong>${cartouches}</strong><br>
 
-        🚬 Cartouches : <strong>${cartouches}</strong><br>
-        🍾 Bouteilles : <strong>${bouteilles}</strong>
-    `;
-}
+    🍾 Total bouteilles :
+    <strong>${bouteilles}</strong>
+`;
 
 function convertirDateExcel(valeur) {
 
