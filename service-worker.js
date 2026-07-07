@@ -5,6 +5,7 @@ const FILES_TO_CACHE = [
     "./index.html",
     "./style.css",
     "./app.js",
+    "./export.js",
     "./xlsx.full.min.js",
     "./manifest.json"
 ];

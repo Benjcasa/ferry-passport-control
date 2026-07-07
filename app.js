@@ -36,6 +36,7 @@ function lireExcel(event) {
             const sheet = workbook.Sheets[sheetName];
 
             const rows = XLSX.utils.sheet_to_json(sheet);
+            console.log(rows);
 
             rows.forEach(row => {
 
