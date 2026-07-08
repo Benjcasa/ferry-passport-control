@@ -17,20 +17,20 @@ input[type="text"],
 #recherche {
     width: 100%;
     box-sizing: border-box;
-    padding: 18px;
+    padding: 14px;
     margin: 10px 0;
-    font-size: 22px;
+    font-size: 20px;
     border-radius: 10px;
     border: 2px solid #999;
 }
 
 button {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
-    padding: 18px 28px;
-    margin: 8px;
+    padding: 10px 16px;
+    margin: 5px;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     background: #1976d2;
     color: white;
@@ -43,31 +43,31 @@ button:hover {
 #exportBtn {
     width: 100%;
     background: #009688;
-    font-size: 28px;
+    font-size: 22px;
     margin-top: 15px;
 }
 
 #resultat,
 #stats,
 #resultatRecherche {
-    margin-top: 20px;
-    padding: 15px;
+    margin-top: 15px;
+    padding: 12px;
     border-radius: 10px;
     border: 2px solid #ccc;
     background: white;
-    font-size: 22px;
+    font-size: 18px;
 }
 
 .passager {
     border: 2px solid #bbb;
     border-radius: 12px;
-    padding: 20px;
-    margin: 15px 0;
-    font-size: 22px;
+    padding: 12px;
+    margin: 12px 0;
+    font-size: 18px;
 }
 
 .passager strong {
-    font-size: 28px;
+    font-size: 24px;
 }
 
 .deja-controle {
@@ -78,43 +78,57 @@ button:hover {
     background: #dff7df;
 }
 
+/* Boutons quantité cigarettes / bouteilles */
+
 .passager button {
-    min-width: 90px;
-    min-height: 70px;
-    font-size: 28px;
-    margin: 6px;
+    min-width: 45px;
+    min-height: 40px;
+    padding: 5px 10px;
+    font-size: 18px;
+    margin: 3px;
 }
 
-@media (max-width: 700px) {
+
+/* Version téléphone */
+
+@media (max-width:700px) {
 
     body {
-        padding: 10px;
+        padding: 8px;
     }
 
     h1 {
-        font-size: 32px;
+        font-size: 28px;
     }
 
     h2 {
-        font-size: 26px;
+        font-size: 22px;
+    }
+
+    #stats {
+        font-size: 20px;
     }
 
     .passager {
-        font-size: 24px;
+        padding: 10px;
+        font-size: 17px;
     }
 
     .passager strong {
-        font-size: 30px;
+        font-size: 22px;
     }
 
     button {
-        width: 100%;
-        font-size: 28px;
-        min-height: 80px;
+        width: auto;
+        font-size: 18px;
+        padding: 8px 12px;
+        min-height: 42px;
     }
 
     .passager button {
-        width: 48%;
+        width: auto;
         display: inline-block;
+        min-width: 42px;
+        min-height: 42px;
     }
 }
