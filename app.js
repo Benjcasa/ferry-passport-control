@@ -130,45 +130,53 @@ function rechercherInstantane() {
                     ${p.nom} ${p.prenom}
                 </strong><br>
 
-                Date de naissance :
-                ${p.naissance || "-"}<br>
+                <span class="passenger-detail">
+                    Date de naissance : ${p.naissance || "-"}
+                </span><br>
 
-                Dossier :
-                ${p.dossier || "-"}<br>
+                <span class="passenger-detail">
+                    Dossier : ${p.dossier || "-"}
+                </span>
         `;
 
         if (p.controle) {
 
             html += `
-                <span style="color:orange;font-weight:bold;">
-                    Déjà contrôlé :
-                    ${p.heureControle}
-                </span>
+                <div class="control-status">
+                    ✓ Contrôlé : ${p.heureControle}
+                </div>
 
-                <br><br>
+                <div class="quantity-section">
+                    <div class="quantity-group">
+                        <label>Cartouches :</label>
+                        <span class="quantity-value">${p.cartouches}</span>
+                        <div class="button-group">
+                            <button onclick="modifierCartouches(${p.id},1)" class="btn-plus">+</button>
+                            <button onclick="modifierCartouches(${p.id},-1)" class="btn-minus">−</button>
+                        </div>
+                    </div>
 
-                Cartouches :
-                <strong>${p.cartouches}</strong>
-
-                <button onclick="modifierCartouches(${p.id},1)">+1</button>
-                <button onclick="modifierCartouches(${p.id},-1)">-1</button>
-
-                <br><br>
-
-                Bouteilles :
-                <strong>${p.bouteilles}</strong>
-
-                <button onclick="modifierBouteilles(${p.id},1)">+1</button>
-                <button onclick="modifierBouteilles(${p.id},-1)">-1</button>
+                    <div class="quantity-group">
+                        <label>Bouteilles :</label>
+                        <span class="quantity-value">${p.bouteilles}</span>
+                        <div class="button-group">
+                            <button onclick="modifierBouteilles(${p.id},1)" class="btn-plus">+</button>
+                            <button onclick="modifierBouteilles(${p.id},-1)" class="btn-minus">−</button>
+                        </div>
+                    </div>
+                </div>
             `;
 
         } else {
 
             html += `
-                <button
-                    onclick="validerControle(${p.id})">
-                    Contrôler
-                </button>
+                <div class="control-action">
+                    <button
+                        onclick="validerControle(${p.id})"
+                        class="btn-control">
+                        ✓ Contrôler
+                    </button>
+                </div>
             `;
         }
 
@@ -272,11 +280,28 @@ function mettreAJourStats() {
     );
 
     document.getElementById("stats").innerHTML = `
-        🚬 Total cartouches :
-        <strong>${cartouches}</strong><br>
-
-        🍾 Total bouteilles :
-        <strong>${bouteilles}</strong>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">Total</div>
+                <div class="stat-value">${total}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Contrôlés</div>
+                <div class="stat-value">${controles}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Restants</div>
+                <div class="stat-value">${restants}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🚬 Cartouches</div>
+                <div class="stat-value">${cartouches}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🍾 Bouteilles</div>
+                <div class="stat-value">${bouteilles}</div>
+            </div>
+        </div>
     `;
 }
 

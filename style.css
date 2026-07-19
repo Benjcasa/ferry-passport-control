@@ -34,10 +34,15 @@ button {
     cursor: pointer;
     background: #1976d2;
     color: white;
+    transition: background 0.2s;
 }
 
 button:hover {
     background: #0d5cab;
+}
+
+button:active {
+    transform: scale(0.98);
 }
 
 #exportBtn {
@@ -58,6 +63,35 @@ button:hover {
     font-size: 18px;
 }
 
+/* Grille de statistiques */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #003366;
+}
+
+/* Cartes de passagers */
 .passager {
     border: 2px solid #bbb;
     border-radius: 12px;
@@ -78,20 +112,94 @@ button:hover {
     background: #dff7df;
 }
 
-/* Boutons quantité cigarettes / bouteilles */
-
-.passager button {
-    min-width: 45px;
-    min-height: 40px;
-    padding: 5px 10px;
-    font-size: 18px;
-    margin: 3px;
+/* Détails du passager */
+.passenger-detail {
+    font-size: 16px;
+    color: #555;
+    display: inline-block;
+    margin: 4px 0;
 }
 
+/* Statut de contrôle */
+.control-status {
+    color: #ff8c00;
+    font-weight: bold;
+    margin: 8px 0;
+    padding: 6px;
+    background: rgba(255, 140, 0, 0.1);
+    border-radius: 6px;
+}
+
+/* Section des quantités */
+.quantity-section {
+    margin-top: 12px;
+    padding: 8px 0;
+}
+
+.quantity-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+}
+
+.quantity-group label {
+    font-weight: 600;
+    min-width: 100px;
+    font-size: 16px;
+}
+
+.quantity-value {
+    font-weight: bold;
+    font-size: 20px;
+    color: #003366;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Groupe de boutons +/- */
+.button-group {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-plus,
+.btn-minus {
+    min-width: 42px;
+    min-height: 42px;
+    padding: 6px 10px;
+    font-size: 18px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.btn-minus {
+    background: #d32f2f;
+}
+
+.btn-minus:hover {
+    background: #b71c1c;
+}
+
+/* Bouton de contrôle */
+.control-action {
+    margin-top: 12px;
+}
+
+.btn-control {
+    width: 100%;
+    background: #4caf50;
+    font-size: 20px;
+    padding: 12px;
+}
+
+.btn-control:hover {
+    background: #388e3c;
+}
 
 /* Version téléphone */
-
-@media (max-width:700px) {
+@media (max-width: 700px) {
 
     body {
         padding: 8px;
@@ -106,29 +214,137 @@ button:hover {
     }
 
     #stats {
-        font-size: 20px;
+        font-size: 16px;
+        padding: 8px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .stat-item {
+        padding: 8px;
+    }
+
+    .stat-value {
+        font-size: 24px;
     }
 
     .passager {
-        padding: 10px;
-        font-size: 17px;
+        padding: 8px;
+        font-size: 16px;
+        margin: 8px 0;
     }
 
     .passager strong {
-        font-size: 22px;
+        font-size: 20px;
+    }
+
+    .passenger-detail {
+        font-size: 14px;
+    }
+
+    .quantity-group {
+        gap: 6px;
+        margin: 6px 0;
+    }
+
+    .quantity-group label {
+        min-width: 90px;
+        font-size: 14px;
+    }
+
+    .quantity-value {
+        font-size: 18px;
+        min-width: 28px;
+    }
+
+    .btn-plus,
+    .btn-minus {
+        min-width: 38px;
+        min-height: 38px;
+        padding: 4px 8px;
+        font-size: 16px;
     }
 
     button {
-        width: auto;
-        font-size: 18px;
+        font-size: 16px;
         padding: 8px 12px;
-        min-height: 42px;
     }
 
-    .passager button {
-        width: auto;
-        display: inline-block;
-        min-width: 42px;
-        min-height: 42px;
+    #exportBtn {
+        font-size: 18px;
     }
+
+    .btn-control {
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    .control-status {
+        margin: 6px 0;
+        padding: 4px;
+        font-size: 14px;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    #recherche {
+        padding: 12px;
+        font-size: 16px;
+        margin: 8px 0;
+    }
+}
+
+/* Extra small screens (< 400px) */
+@media (max-width: 400px) {
+
+    body {
+        padding: 4px;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin: 8px 0;
+    }
+
+    h2 {
+        font-size: 18px;
+        margin: 8px 0;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .passager {
+        padding: 6px;
+        font-size: 14px;
+        border-width: 1px;
+    }
+
+    .passager strong {
+        font-size: 18px;
+    }
+
+    .quantity-group {
+        gap: 4px;
+    }
+
+    .btn-plus,
+    .btn-minus {
+        min-width: 36px;
+        min-height: 36px;
+        padding: 3px 6px;
+        font-size: 14px;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    #recherche {
+        padding: 10px;
+        font-size: 14px;
+    }
+
 }

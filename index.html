@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Contrôle Passagers Ferry</title>
 
     <link rel="stylesheet" href="style.css">
@@ -25,11 +28,28 @@
     <h2>Statistiques</h2>
 
     <div id="stats">
-        Total : 0<br>
-        Contrôlés : 0<br>
-        Restants : 0<br>
-        Cartouches : 0<br>
-        Bouteilles : 0
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">Total</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Contrôlés</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Restants</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🚬 Cartouches</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🍾 Bouteilles</div>
+                <div class="stat-value">0</div>
+            </div>
+        </div>
     </div>
 
     <button id="exportBtn" onclick="exporterControles()">
