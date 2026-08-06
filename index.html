@@ -19,7 +19,10 @@
 
     <h1>Contrôle Passagers Ferry</h1>
 
-    <input type="file" id="excelFile" accept=".xlsx,.xls">
+    <div class="input-group">
+        <input type="file" id="pdfFile" accept=".pdf">
+        <button id="scannerBtn" class="scanner-btn" onclick="ouvrirScanner()" title="Scanner un passeport">📸 Scanner</button>
+    </div>
 
     <div id="resultat">
         Aucun fichier chargé
@@ -66,7 +69,36 @@
 
     <div id="resultatRecherche"></div>
 
-<script src="xlsx.full.min.js"></script>
+    <!-- Modal Scanner -->
+    <div id="scannerModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="fermerScanner()">&times;</span>
+            <h2>Scanner Passeport</h2>
+            
+            <div id="cameraContainer">
+                <video id="videoElement" autoplay playsinline></video>
+                <button onclick="capturerPhoto()" class="btn-capture">📸 Prendre une photo</button>
+            </div>
+
+            <div id="photoContainer" style="display:none;">
+                <canvas id="photoCanvas"></canvas>
+                <button onclick="analyserPhoto()" class="btn-analyze">🔍 Analyser</button>
+                <button onclick="reprendreScan()" class="btn-retry">↻ Reprendre</button>
+            </div>
+
+            <div id="resultatScanner" style="display:none;">
+                <h3>Résultats trouvés :</h3>
+                <div id="listeResultats"></div>
+            </div>
+
+            <div id="chargement" style="display:none;">
+                <p>Analyse en cours...</p>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
 <script src="export.js"></script>
 <script src="app.js"></script>
 
