@@ -53,26 +53,32 @@ async function lirePDF(event) {
 
 // Extrait les passagers du texte PDF
 function extrairePassagersDuTexte(texte) {
-    // Regex pour extraire les lignes avec format : N° ordre, N° dossier, Nom, Prénom, Genre, Cat, Date
-    // Exemple: 26 000009782222 ABASSI MOHTADA M P 26/10/1984
+    // Normaliser le texte
+    texte = texte.replace(/\r\n/g, "\n");
+    
+    console.log("Texte brut du PDF:", texte);
     
     const lignes = texte.split(/\n/);
     
-    lignes.forEach(ligne => {
+    lignes.forEach((ligne, index) => {
         ligne = ligne.trim();
         
-        if (!ligne) return;
+        if (!ligne || ligne.length < 5) return;
         
-        // Regex pour capturer les données du PDF
-        const regex = /^(\d+)\s+(\d+)\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+)\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+)\s+([MF])\s+([A-Z])\s+(\d{1,2}\/\d{1,2}\/\d{4})/i;
+        // Plusieurs patterns pour capturer les données
+        // Pattern 1 : Format avec N° ordre et N° dossier séparés
+        // Exemple: 26 000009782222 ABASSI MOHTADA M P 26/10/1984
+        const regex1 = /^(\d{1,3})\s+(\d{9,})\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+?)\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+?)\s+([MF])\s+([A-Z])\s+(\d{1,2}\/\d{1,2}\/\d{4})/i;
         
-        const match = ligne.match(regex);
+        // Pattern 2 : Format sans N° ordre
+        const regex2 = /^(\d{9,})\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+?)\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+?)\s+([MF])\s+([A-Z])\s+(\d{1,2}\/\d{1,2}\/\d{4})/i;
         
+        let match = ligne.match(regex1);
         if (match) {
             const nom = match[3].trim();
             const prenom = match[4].trim();
             
-            if (nom && prenom) {
+            if (nom && prenom && nom.length > 1 && prenom.length > 1) {
                 passagers.push({
                     id: passagers.length,
                     dossier: match[2],
@@ -84,7 +90,31 @@ function extrairePassagersDuTexte(texte) {
                     cartouches: 0,
                     bouteilles: 0
                 });
+                console.log("Passager trouvé (Pattern 1):", nom, prenom, match[7]);
             }
+            return;
+        }
+        
+        match = ligne.match(regex2);
+        if (match) {
+            const nom = match[2].trim();
+            const prenom = match[3].trim();
+            
+            if (nom && prenom && nom.length > 1 && prenom.length > 1) {
+                passagers.push({
+                    id: passagers.length,
+                    dossier: match[1],
+                    nom: nom,
+                    prenom: prenom,
+                    naissance: match[6],
+                    controle: false,
+                    heureControle: "",
+                    cartouches: 0,
+                    bouteilles: 0
+                });
+                console.log("Passager trouvé (Pattern 2):", nom, prenom, match[6]);
+            }
+            return;
         }
     });
 }
@@ -336,6 +366,8 @@ async function analyserPhoto() {
 
         // Extraire le texte de la photo
         const { data: { text } } = await Tesseract.recognize(canvas, "fra");
+        
+        console.log("OCR résultat:", text);
         
         // Chercher le nom dans le texte OCR
         const nomsDetectes = trouverNomsOCR(text);
