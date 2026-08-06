@@ -33,8 +33,13 @@ async function lirePDF(event) {
                 const textContent = await page.getTextContent();
                 const texte = textContent.items.map(item => item.str).join(" ");
                 
+                console.log(`Page ${i} texte:`, texte.substring(0, 200));
+                
                 extrairePassagersDuTexte(texte);
             }
+
+            console.log("Total passagers extraits:", passagers.length);
+            console.log("Premiers passagers:", passagers.slice(0, 3));
 
             sauvegarderDonnees();
 
@@ -56,67 +61,79 @@ function extrairePassagersDuTexte(texte) {
     // Normaliser le texte
     texte = texte.replace(/\r\n/g, "\n");
     
-    console.log("Texte brut du PDF:", texte);
+    const lignes = texte.split(/\s+/); // Split par tous les espaces
     
-    const lignes = texte.split(/\n/);
-    
-    lignes.forEach((ligne, index) => {
-        ligne = ligne.trim();
+    // Chercher les patterns : AAAA BBBB DD/MM/YYYY
+    let i = 0;
+    while (i < lignes.length) {
+        const ligne = lignes[i];
         
-        if (!ligne || ligne.length < 5) return;
-        
-        // Plusieurs patterns pour capturer les données
-        // Pattern 1 : Format avec N° ordre et N° dossier séparés
-        // Exemple: 26 000009782222 ABASSI MOHTADA M P 26/10/1984
-        const regex1 = /^(\d{1,3})\s+(\d{9,})\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+?)\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+?)\s+([MF])\s+([A-Z])\s+(\d{1,2}\/\d{1,2}\/\d{4})/i;
-        
-        // Pattern 2 : Format sans N° ordre
-        const regex2 = /^(\d{9,})\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+?)\s+([A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ\s]+?)\s+([MF])\s+([A-Z])\s+(\d{1,2}\/\d{1,2}\/\d{4})/i;
-        
-        let match = ligne.match(regex1);
-        if (match) {
-            const nom = match[3].trim();
-            const prenom = match[4].trim();
+        // Vérifier si c'est un mot potentiel de nom (MAJUSCULES)
+        if (ligne.length > 2 && /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ]+$/.test(ligne)) {
             
-            if (nom && prenom && nom.length > 1 && prenom.length > 1) {
-                passagers.push({
-                    id: passagers.length,
-                    dossier: match[2],
-                    nom: nom,
-                    prenom: prenom,
-                    naissance: match[7],
-                    controle: false,
-                    heureControle: "",
-                    cartouches: 0,
-                    bouteilles: 0
-                });
-                console.log("Passager trouvé (Pattern 1):", nom, prenom, match[7]);
+            // Chercher le prochain mot (potentiel prénom)
+            if (i + 1 < lignes.length) {
+                const prenom = lignes[i + 1];
+                
+                if (prenom.length > 2 && /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ]+$/.test(prenom)) {
+                    
+                    // Chercher la date (DD/MM/YYYY)
+                    let dateIndex = i + 2;
+                    let dateFound = false;
+                    let date = "";
+                    
+                    // Chercher dans les 5 prochains éléments
+                    for (let j = i + 2; j < Math.min(i + 7, lignes.length); j++) {
+                        if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(lignes[j])) {
+                            date = lignes[j];
+                            dateFound = true;
+                            break;
+                        }
+                    }
+                    
+                    if (dateFound && date) {
+                        const nom = ligne.toUpperCase();
+                        const prenom_final = prenom.toUpperCase();
+                        
+                        // Chercher le N° dossier (9 chiffres avant)
+                        let dossier = "";
+                        for (let j = Math.max(0, i - 5); j < i; j++) {
+                            if (/^\d{9,}$/.test(lignes[j])) {
+                                dossier = lignes[j];
+                                break;
+                            }
+                        }
+                        
+                        // Vérifier qu'on n'a pas déjà ce passager
+                        const existe = passagers.some(p => 
+                            p.nom === nom && p.prenom === prenom_final && p.naissance === date
+                        );
+                        
+                        if (!existe) {
+                            passagers.push({
+                                id: passagers.length,
+                                dossier: dossier,
+                                nom: nom,
+                                prenom: prenom_final,
+                                naissance: date,
+                                controle: false,
+                                heureControle: "",
+                                cartouches: 0,
+                                bouteilles: 0
+                            });
+                            
+                            console.log("✓ Passager trouvé:", nom, prenom_final, date, dossier);
+                        }
+                        
+                        i = dateIndex + 1;
+                        continue;
+                    }
+                }
             }
-            return;
         }
         
-        match = ligne.match(regex2);
-        if (match) {
-            const nom = match[2].trim();
-            const prenom = match[3].trim();
-            
-            if (nom && prenom && nom.length > 1 && prenom.length > 1) {
-                passagers.push({
-                    id: passagers.length,
-                    dossier: match[1],
-                    nom: nom,
-                    prenom: prenom,
-                    naissance: match[6],
-                    controle: false,
-                    heureControle: "",
-                    cartouches: 0,
-                    bouteilles: 0
-                });
-                console.log("Passager trouvé (Pattern 2):", nom, prenom, match[6]);
-            }
-            return;
-        }
-    });
+        i++;
+    }
 }
 
 // ==================== RECHERCHE ====================
@@ -130,6 +147,8 @@ function rechercherInstantane() {
 
     const resultat =
         document.getElementById("resultatRecherche");
+
+    console.log("Recherche:", texte, "Total passagers:", passagers.length);
 
     if (texte.length < 2) {
         resultat.innerHTML = "";
@@ -149,6 +168,8 @@ function rechercherInstantane() {
             return recherche.includes(texte);
         })
         .slice(0, 30);
+
+    console.log("Résultats trouvés:", trouves.length);
 
     let html = "";
 
