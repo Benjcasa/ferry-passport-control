@@ -33,19 +33,20 @@ function exporterControles() {
         };
     });
 
-    const feuille = XLSX.utils.json_to_sheet(donnees);
+    // Créer un CSV au lieu d'Excel
+    let csv = "Dossier,Nom,Prenom,Naissance,Heure,Cartouches,Bouteilles\n";
+    donnees.forEach(d => {
+        csv += `"${d.Dossier}","${d.Nom}","${d.Prenom}","${d.Naissance}","${d.Heure}",${d.Cartouches},${d.Bouteilles}\n`;
+    });
 
-    const classeur = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(
-        classeur,
-        feuille,
-        "Controles"
-    );
-
-    XLSX.writeFile(
-        classeur,
-        sens + "_" + date + ".xlsx"
-    );
-
+    // Télécharger le fichier
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const lien = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    lien.setAttribute("href", url);
+    lien.setAttribute("download", sens + "_" + date + ".csv");
+    lien.style.visibility = "hidden";
+    document.body.appendChild(lien);
+    lien.click();
+    document.body.removeChild(lien);
 }
