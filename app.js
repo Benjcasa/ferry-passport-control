@@ -407,20 +407,68 @@ async function analyserPhoto() {
     }
 }
 
+// Normalise un texte pour la comparaison (accents, tirets, espaces)
+function normaliserTexte(texte) {
+    return texte
+        .toUpperCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // supprimer accents
+        .replace(/[-'\s]+/g, " ")                          // tirets/apostrophes -> espace
+        .trim();
+}
+
+// Calcule la distance de Levenshtein entre deux chaînes
+function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, (_, i) => [i]);
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            dp[i][j] = a[i - 1] === b[j - 1]
+                ? dp[i - 1][j - 1]
+                : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+        }
+    }
+    return dp[m][n];
+}
+
+// Retourne vrai si deux tokens sont suffisamment similaires
+function tokensSimilaires(a, b) {
+    if (a === b) return true;
+    const dist = levenshtein(a, b);
+    const maxLen = Math.max(a.length, b.length);
+    // Tolérance : 0 erreur pour ≤3 chars, 1 pour ≤6, 2 pour >6
+    const tolerance = maxLen <= 3 ? 0 : maxLen <= 6 ? 1 : 2;
+    return dist <= tolerance;
+}
+
 // Extrait les noms potentiels du texte OCR
 function trouverNomsOCR(texte) {
+    console.log("[OCR] Texte brut reçu :\n" + texte);
+
+    // Chercher une date de naissance (DD/MM/YYYY) comme point d'ancrage
+    const regexDate = /\b(\d{2}[\/\-\.]\d{2}[\/\-\.]\d{4})\b/;
+    const matchDate = texte.match(regexDate);
+    let zone = texte;
+    if (matchDate) {
+        // Extraire seulement la partie précédant la date
+        zone = texte.substring(0, matchDate.index);
+        console.log("[OCR] Date trouvée : " + matchDate[0] + " — analyse de la zone précédente");
+    } else {
+        console.log("[OCR] Aucune date trouvée, analyse du texte complet");
+    }
+
     const noms = [];
-    
-    // Chercher les mots en MAJUSCULES (format passeport)
-    const mots = texte.split(/[\s\n]+/);
-    
+    const regexNom = /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆÑ][A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆÑ'\-]*$/;
+    const mots = zone.split(/[\s\n,;:.()\[\]\/\\|]+/);
+
     mots.forEach(mot => {
         mot = mot.trim().toUpperCase();
-        if (mot.length > 2 && /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ]+$/.test(mot)) {
+        if (mot.length >= 2 && regexNom.test(mot)) {
             noms.push(mot);
         }
     });
-    
+
+    console.log("[OCR] Noms/tokens détectés : " + JSON.stringify(noms));
     return noms;
 }
 
@@ -429,18 +477,28 @@ function trouverPassagersOCR(nomsDetectes) {
     const resultats = [];
 
     nomsDetectes.forEach(nomOCR => {
+        const tokenOCR = normaliserTexte(nomOCR);
+
         passagers.forEach(p => {
-            // Vérifier si le nom OCR correspond au nom ou prénom
-            if (p.nom.toUpperCase().includes(nomOCR) || 
-                nomOCR.includes(p.nom.toUpperCase().substring(0, 3))) {
-                
-                if (!resultats.find(r => r.id === p.id)) {
-                    resultats.push(p);
-                }
+            if (resultats.find(r => r.id === p.id)) return;
+
+            // Normaliser nom et prénom du passager en tokens individuels
+            const tokensNom    = normaliserTexte(p.nom    || "").split(" ").filter(Boolean);
+            const tokensPrenom = normaliserTexte(p.prenom || "").split(" ").filter(Boolean);
+            const tousTokens   = [...tokensNom, ...tokensPrenom];
+
+            const trouve = tousTokens.some(t => tokensSimilaires(tokenOCR, t));
+
+            if (trouve) {
+                console.log(`[OCR] Correspondance trouvée : "${nomOCR}" ~ "${p.nom} ${p.prenom}"`);
+                resultats.push(p);
+            } else {
+                console.debug(`[OCR] Pas de correspondance : "${nomOCR}" vs tokens ${JSON.stringify(tousTokens)}`);
             }
         });
     });
 
+    console.log("[OCR] Total passagers trouvés : " + resultats.length);
     return resultats.slice(0, 10); // Limiter à 10 résultats
 }
 
