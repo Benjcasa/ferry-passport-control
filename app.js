@@ -1,6 +1,24 @@
 let passagers = [];
 let stream = null;
 let tesseractInitialized = false;
+const LONGUEUR_MIN_NOM = 2;
+const REGEX_NOM_MAJUSCULE = /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆÑ]+(?:[-'’][A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆÑ]+)*$/;
+
+function estNomValide(mot, source, type = "nom") {
+    const motNormalise = (mot || "").trim().toUpperCase();
+
+    if (motNormalise.length < LONGUEUR_MIN_NOM) {
+        console.debug(`[${source}] ${type} rejeté (trop court):`, mot);
+        return false;
+    }
+
+    if (!REGEX_NOM_MAJUSCULE.test(motNormalise)) {
+        console.debug(`[${source}] ${type} rejeté (format invalide):`, mot);
+        return false;
+    }
+
+    return true;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     document
@@ -69,13 +87,13 @@ function extrairePassagersDuTexte(texte) {
         const ligne = lignes[i];
         
         // Vérifier si c'est un mot potentiel de nom (MAJUSCULES)
-        if (ligne.length > 2 && /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ]+$/.test(ligne)) {
+        if (estNomValide(ligne, "PDF", "nom")) {
             
             // Chercher le prochain mot (potentiel prénom)
             if (i + 1 < lignes.length) {
                 const prenom = lignes[i + 1];
                 
-                if (prenom.length > 2 && /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ]+$/.test(prenom)) {
+                if (estNomValide(prenom, "PDF", "prénom")) {
                     
                     // Chercher la date (DD/MM/YYYY)
                     let dateIndex = i + 2;
@@ -416,7 +434,7 @@ function trouverNomsOCR(texte) {
     
     mots.forEach(mot => {
         mot = mot.trim().toUpperCase();
-        if (mot.length > 2 && /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆ]+$/.test(mot)) {
+        if (estNomValide(mot, "OCR")) {
             noms.push(mot);
         }
     });
