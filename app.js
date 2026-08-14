@@ -342,7 +342,7 @@ function ouvrirScanner() {
         return;
     }
 
-    document.getElementById("scannerModal").style.display = "block";
+    document.getElementById("scannerModal").style.display = "flex";
     document.getElementById("cameraContainer").style.display = "block";
     document.getElementById("photoContainer").style.display = "none";
     document.getElementById("resultatScanner").style.display = "none";
