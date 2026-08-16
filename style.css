@@ -58,6 +58,9 @@ body {
 .header-inner {
     max-width: 1000px;
     margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .header-logo {
@@ -86,6 +89,33 @@ body {
 .header-subtitle {
     font-size: .85rem;
     opacity: .8;
+    letter-spacing: .3px;
+}
+
+/* ---------- Version badge ---------- */
+.version-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    cursor: default;
+    transition: background var(--transition), transform var(--transition);
+    white-space: nowrap;
+}
+.version-badge:hover {
+    background: rgba(255,255,255,.28);
+    transform: translateY(-1px);
+}
+.version-icon {
+    font-size: .85rem;
+}
+.version-text {
+    font-size: .75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.95);
     letter-spacing: .3px;
 }
 
