@@ -74,83 +74,67 @@ async function lirePDF(event) {
     reader.readAsArrayBuffer(fichier);
 }
 
+// Regex pour une date valide (supports / - .)
+const REGEX_DATE = /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/;
+
 // Extrait les passagers du texte PDF
+// Stratégie : trouver chaque date, puis remonter pour trouver NOM(s) et PRÉNOM(s)
 function extrairePassagersDuTexte(texte) {
     // Normaliser le texte
     texte = texte.replace(/\r\n/g, "\n");
-    
-    const lignes = texte.split(/\s+/); // Split par tous les espaces
-    
-    // Chercher les patterns : AAAA BBBB DD/MM/YYYY
-    let i = 0;
-    while (i < lignes.length) {
-        const ligne = lignes[i];
-        
-        // Vérifier si c'est un mot potentiel de nom (MAJUSCULES)
-        if (estNomValide(ligne, "PDF", "nom")) {
-            
-            // Chercher le prochain mot (potentiel prénom)
-            if (i + 1 < lignes.length) {
-                const prenom = lignes[i + 1];
-                
-                if (estNomValide(prenom, "PDF", "prénom")) {
-                    
-                    // Chercher la date (DD/MM/YYYY)
-                    let dateIndex = i + 2;
-                    let dateFound = false;
-                    let date = "";
-                    
-                    // Chercher dans les 5 prochains éléments
-                    for (let j = i + 2; j < Math.min(i + 7, lignes.length); j++) {
-                        if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(lignes[j])) {
-                            date = lignes[j];
-                            dateFound = true;
-                            break;
-                        }
-                    }
-                    
-                    if (dateFound && date) {
-                        const nom = ligne.toUpperCase();
-                        const prenom_final = prenom.toUpperCase();
-                        
-                        // Chercher le N° dossier (9 chiffres avant)
-                        let dossier = "";
-                        for (let j = Math.max(0, i - 5); j < i; j++) {
-                            if (/^\d{9,}$/.test(lignes[j])) {
-                                dossier = lignes[j];
-                                break;
-                            }
-                        }
-                        
-                        // Vérifier qu'on n'a pas déjà ce passager
-                        const existe = passagers.some(p => 
-                            p.nom === nom && p.prenom === prenom_final && p.naissance === date
-                        );
-                        
-                        if (!existe) {
-                            passagers.push({
-                                id: passagers.length,
-                                dossier: dossier,
-                                nom: nom,
-                                prenom: prenom_final,
-                                naissance: date,
-                                controle: false,
-                                heureControle: "",
-                                cartouches: 0,
-                                bouteilles: 0
-                            });
-                            
-                            console.log("✓ Passager trouvé:", nom, prenom_final, date, dossier);
-                        }
-                        
-                        i = dateIndex + 1;
-                        continue;
-                    }
-                }
+
+    const tokens = texte.split(/\s+/);
+
+    // Parcourir les tokens et chercher les dates comme ancre
+    for (let i = 0; i < tokens.length; i++) {
+        if (!REGEX_DATE.test(tokens[i])) continue;
+
+        const date = tokens[i];
+
+        // Remonter avant la date pour collecter les tokens de nom (majuscules)
+        // On remonte jusqu'à 8 tokens pour couvrir les noms composés
+        let nomTokens = [];
+        let j = i - 1;
+        while (j >= 0 && i - j <= 8 && estNomValide(tokens[j], "PDF", "token")) {
+            nomTokens.unshift(tokens[j]);
+            j--;
+        }
+
+        if (nomTokens.length < 2) continue; // besoin d'au moins NOM + PRÉNOM
+
+        // Le dernier token est le prénom, tout ce qui précède est le nom
+        const prenom = nomTokens[nomTokens.length - 1];
+        const nom = nomTokens.slice(0, nomTokens.length - 1).join(" ");
+
+        // Chercher le N° dossier (9+ chiffres) dans les tokens précédant le bloc de noms
+        let dossier = "";
+        for (let k = Math.max(0, j - 4); k <= j; k++) {
+            if (/^\d{9,}$/.test(tokens[k])) {
+                dossier = tokens[k];
+                break;
             }
         }
-        
-        i++;
+
+        // Vérifier qu'on n'a pas déjà ce passager
+        const existe = passagers.some(p =>
+            p.nom === nom && p.prenom === prenom && p.naissance === date
+        );
+
+        if (!existe) {
+            passagers.push({
+                id: passagers.length,
+                dossier: dossier,
+                nom: nom,
+                prenom: prenom,
+                naissance: date,
+                controle: false,
+                heureControle: "",
+                cartouches: 0,
+                bouteilles: 0
+            });
+
+            console.log("✓ Passager trouvé:", nom, prenom, date, dossier);
+        }
     }
 }
 
@@ -195,9 +179,10 @@ function rechercherInstantane() {
         html += `
             <div class="passager ${p.controle ? 'deja-controle' : 'non-controle'}">
 
-                <strong>
-                    ${p.nom} ${p.prenom}
-                </strong><br>
+                <div class="passenger-name">
+                    <span class="passenger-nom">${p.nom}</span>
+                    <span class="passenger-prenom">${p.prenom}</span>
+                </div>
 
                 <span class="passenger-detail">
                     Date de naissance : ${p.naissance || "-"}
@@ -337,15 +322,16 @@ function mettreAJourStats() {
 // ==================== SCANNER PASSEPORT ====================
 
 function ouvrirScanner() {
-    if (passagers.length === 0) {
-        alert("Veuillez d'abord charger un fichier PDF");
-        return;
-    }
-
     document.getElementById("scannerModal").style.display = "flex";
     document.getElementById("cameraContainer").style.display = "block";
     document.getElementById("photoContainer").style.display = "none";
     document.getElementById("resultatScanner").style.display = "none";
+
+    // Vérifier la disponibilité de l'API caméra
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("La caméra n'est pas disponible dans ce contexte (HTTPS requis ou navigateur non compatible).");
+        return;
+    }
 
     // Accéder à la caméra
     navigator.mediaDevices.getUserMedia({
@@ -534,7 +520,10 @@ function afficherResultatsScanner(resultats) {
         const p = resultats[0];
         listeResultats.innerHTML = `
             <div class="passager non-controle">
-                <strong>${p.nom} ${p.prenom}</strong><br>
+                <div class="passenger-name">
+                    <span class="passenger-nom">${p.nom}</span>
+                    <span class="passenger-prenom">${p.prenom}</span>
+                </div>
                 <span class="passenger-detail">Date : ${p.naissance}</span><br>
                 <button onclick="validerControle(${p.id}); fermerScanner();" class="btn-control">
                     ✓ Valider ce passager
@@ -549,7 +538,10 @@ function afficherResultatsScanner(resultats) {
     resultats.forEach(p => {
         html += `
             <div class="passager non-controle">
-                <strong>${p.nom} ${p.prenom}</strong><br>
+                <div class="passenger-name">
+                    <span class="passenger-nom">${p.nom}</span>
+                    <span class="passenger-prenom">${p.prenom}</span>
+                </div>
                 <span class="passenger-detail">Date : ${p.naissance}</span><br>
                 <button onclick="validerControle(${p.id}); fermerScanner();" class="btn-control">
                     ✓ C'est lui

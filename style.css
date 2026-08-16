@@ -352,6 +352,30 @@ body {
     color: var(--primary);
 }
 
+/* ---------- Passenger name display ---------- */
+.passenger-name {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 6px;
+}
+
+.passenger-nom {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--primary);
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+.passenger-prenom {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-light);
+    word-break: break-word;
+    line-height: 1.2;
+}
+
 /* Controlled passenger – green accent */
 .deja-controle {
     background: linear-gradient(135deg, #f1fef3 0%, #e8f5e9 100%);
@@ -360,6 +384,8 @@ body {
 
 .deja-controle::before { background: var(--success-light); }
 .deja-controle strong  { color: var(--success); }
+.deja-controle .passenger-nom  { color: var(--success); }
+.deja-controle .passenger-prenom { color: var(--success-light); }
 
 /* Not controlled – warm orange accent */
 .non-controle {
