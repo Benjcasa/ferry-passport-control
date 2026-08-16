@@ -58,9 +58,6 @@ body {
 .header-inner {
     max-width: 1000px;
     margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
 }
 
 .header-logo {
@@ -89,40 +86,6 @@ body {
 .header-subtitle {
     font-size: .85rem;
     opacity: .8;
-    letter-spacing: .3px;
-}
-
-/* ---------- Version badge ---------- */
-.version-badge {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.3);
-    border-radius: 20px;
-    padding: 4px 12px;
-    cursor: default;
-    transition: background var(--transition), transform var(--transition);
-    white-space: nowrap;
-    font-size: .75rem;
-    font-weight: 600;
-    color: rgba(255,255,255,.95);
-    letter-spacing: .3px;
-}
-
-.version-badge:hover {
-    background: rgba(255,255,255,.28);
-    transform: translateY(-1px);
-}
-
-.version-icon {
-    font-size: .85rem;
-}
-
-.version-text {
-    font-size: .75rem;
-    font-weight: 600;
-    color: rgba(255,255,255,.95);
     letter-spacing: .3px;
 }
 
@@ -383,10 +346,22 @@ body {
     transform: translateY(-1px);
 }
 
-.passager strong {
-    font-size: 1.3rem;
-    font-weight: 800;
+/* ---------- Passenger name and first name display ---------- */
+.passenger-nom {
+    font-size: 1.8rem;
+    font-weight: 900;
     color: var(--primary);
+    line-height: 1;
+    margin-bottom: 4px;
+    word-break: break-word;
+}
+
+.passenger-prenom {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    word-break: break-word;
 }
 
 /* Controlled passenger – green accent */
@@ -396,7 +371,7 @@ body {
 }
 
 .deja-controle::before { background: var(--success-light); }
-.deja-controle strong  { color: var(--success); }
+.deja-controle .passenger-nom { color: var(--success); }
 
 /* Not controlled – warm orange accent */
 .non-controle {
@@ -713,9 +688,6 @@ button:active { transform: scale(0.97); }
     .header-icon { font-size: 1.8rem; }
     .header-title { font-size: 1.2rem; }
     .header-subtitle { font-size: .75rem; }
-    .version-badge { font-size: .65rem; padding: 3px 8px; }
-    .version-text { font-size: .65rem; }
-    .version-icon { font-size: .7rem; }
 
     .app-main { margin: 16px auto; padding: 0 10px 30px; gap: 14px; }
 
@@ -730,7 +702,8 @@ button:active { transform: scale(0.97); }
     .stat-value  { font-size: 1.6rem; }
 
     .passager { padding: 12px; font-size: .95rem; }
-    .passager strong { font-size: 1.1rem; }
+    .passenger-nom { font-size: 1.5rem; }
+    .passenger-prenom { font-size: .9rem; }
     .passenger-detail { font-size: .82rem; }
 
     .quantity-group { gap: 6px; margin: 6px 0; }
@@ -756,13 +729,13 @@ button:active { transform: scale(0.97); }
 
     .header-title { font-size: 1rem; }
     .header-subtitle { display: none; }
-    .version-badge { font-size: .6rem; padding: 2px 6px; }
 
     .stats-grid { grid-template-columns: 1fr; }
     .stat-value  { font-size: 1.4rem; }
 
     .passager { padding: 10px; font-size: .88rem; }
-    .passager strong { font-size: 1rem; }
+    .passenger-nom { font-size: 1.3rem; }
+    .passenger-prenom { font-size: .8rem; }
 
     #recherche { font-size: .95rem; }
 
