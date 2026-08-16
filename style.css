@@ -58,6 +58,9 @@ body {
 .header-inner {
     max-width: 1000px;
     margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .header-logo {
@@ -86,6 +89,35 @@ body {
 .header-subtitle {
     font-size: .85rem;
     opacity: .8;
+    letter-spacing: .3px;
+}
+
+/* ---------- Version Badge ---------- */
+.version-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, .15);
+    border-radius: 20px;
+    font-size: .9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+    transition: transform var(--transition), background var(--transition);
+    cursor: default;
+}
+
+.version-badge:hover {
+    background: rgba(255, 255, 255, .25);
+    transform: translateY(-1px);
+}
+
+.version-icon {
+    font-size: 1.1rem;
+}
+
+.version-text {
     letter-spacing: .3px;
 }
 
@@ -689,6 +721,9 @@ button:active { transform: scale(0.97); }
     .header-title { font-size: 1.2rem; }
     .header-subtitle { font-size: .75rem; }
 
+    .header-inner { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .version-badge { font-size: .8rem; padding: 6px 12px; }
+
     .app-main { margin: 16px auto; padding: 0 10px 30px; gap: 14px; }
 
     .card { padding: 16px; }
@@ -729,6 +764,7 @@ button:active { transform: scale(0.97); }
 
     .header-title { font-size: 1rem; }
     .header-subtitle { display: none; }
+    .version-badge { font-size: .75rem; padding: 4px 10px; }
 
     .stats-grid { grid-template-columns: 1fr; }
     .stat-value  { font-size: 1.4rem; }
