@@ -1,3 +1,6 @@
+const APP_VERSION = 'v2.3.0';
+const APP_DATE    = '16 Août 2026';
+
 let passagers = [];
 let stream = null;
 let tesseractInitialized = false;
