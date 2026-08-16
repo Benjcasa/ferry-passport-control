@@ -75,83 +75,80 @@ async function lirePDF(event) {
 }
 
 // Extrait les passagers du texte PDF
+// Stratégie : utiliser la DATE comme ancre, puis remonter pour trouver NOM + PRÉNOM
 function extrairePassagersDuTexte(texte) {
     // Normaliser le texte
     texte = texte.replace(/\r\n/g, "\n");
     
     const lignes = texte.split(/\s+/); // Split par tous les espaces
     
-    // Chercher les patterns : AAAA BBBB DD/MM/YYYY
-    let i = 0;
-    while (i < lignes.length) {
-        const ligne = lignes[i];
+    console.log("[PDF] Lignes totales:", lignes.length);
+    
+    // Chercher d'abord toutes les dates de naissance (ancres)
+    const dates = [];
+    for (let i = 0; i < lignes.length; i++) {
+        if (/^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}$/.test(lignes[i])) {
+            dates.push({ index: i, date: lignes[i] });
+        }
+    }
+    
+    console.log("[PDF] Dates trouvées:", dates.length);
+    
+    // Pour chaque date, remonter pour trouver NOM(S) + PRÉNOM
+    dates.forEach(dateInfo => {
+        let i = dateInfo.index - 1;
         
-        // Vérifier si c'est un mot potentiel de nom (MAJUSCULES)
-        if (estNomValide(ligne, "PDF", "nom")) {
-            
-            // Chercher le prochain mot (potentiel prénom)
-            if (i + 1 < lignes.length) {
-                const prenom = lignes[i + 1];
-                
-                if (estNomValide(prenom, "PDF", "prénom")) {
-                    
-                    // Chercher la date (DD/MM/YYYY)
-                    let dateIndex = i + 2;
-                    let dateFound = false;
-                    let date = "";
-                    
-                    // Chercher dans les 5 prochains éléments
-                    for (let j = i + 2; j < Math.min(i + 7, lignes.length); j++) {
-                        if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(lignes[j])) {
-                            date = lignes[j];
-                            dateFound = true;
-                            break;
-                        }
-                    }
-                    
-                    if (dateFound && date) {
-                        const nom = ligne.toUpperCase();
-                        const prenom_final = prenom.toUpperCase();
-                        
-                        // Chercher le N° dossier (9 chiffres avant)
-                        let dossier = "";
-                        for (let j = Math.max(0, i - 5); j < i; j++) {
-                            if (/^\d{9,}$/.test(lignes[j])) {
-                                dossier = lignes[j];
-                                break;
-                            }
-                        }
-                        
-                        // Vérifier qu'on n'a pas déjà ce passager
-                        const existe = passagers.some(p => 
-                            p.nom === nom && p.prenom === prenom_final && p.naissance === date
-                        );
-                        
-                        if (!existe) {
-                            passagers.push({
-                                id: passagers.length,
-                                dossier: dossier,
-                                nom: nom,
-                                prenom: prenom_final,
-                                naissance: date,
-                                controle: false,
-                                heureControle: "",
-                                cartouches: 0,
-                                bouteilles: 0
-                            });
-                            
-                            console.log("✓ Passager trouvé:", nom, prenom_final, date, dossier);
-                        }
-                        
-                        i = dateIndex + 1;
-                        continue;
-                    }
-                }
+        // Remonter pour trouver le PRÉNOM (au plus proche de la date)
+        while (i >= 0 && !estNomValide(lignes[i], "PDF", "prénom")) {
+            i--;
+        }
+        
+        if (i < 0) return; // Pas de prénom trouvé
+        
+        const prenom = lignes[i].toUpperCase();
+        
+        // Remonter PLUS pour trouver le(s) NOM(S) composé(s)
+        const nomTokens = [];
+        i--;
+        while (i >= 0 && estNomValide(lignes[i], "PDF", "nom")) {
+            nomTokens.unshift(lignes[i].toUpperCase()); // Ajouter devant (on remonte)
+            i--;
+        }
+        
+        if (nomTokens.length === 0) return; // Pas de nom trouvé
+        
+        const nom = nomTokens.join(" "); // Nom peut être composé : "DUPONT-MARTIN JEAN-LUC" → "DUPONT-MARTIN"
+        
+        // Chercher le N° dossier (9 chiffres dans les 10 tokens avant le nom)
+        let dossier = "";
+        for (let j = Math.max(0, i - 10); j <= i; j++) {
+            if (/^\d{9,}$/.test(lignes[j])) {
+                dossier = lignes[j];
+                break;
             }
         }
         
-        i++;
-    }
+        // Vérifier qu'on n'a pas déjà ce passager
+        const existe = passagers.some(p => 
+            p.nom === nom && p.prenom === prenom && p.naissance === dateInfo.date
+        );
+        
+        if (!existe) {
+            passagers.push({
+                id: passagers.length,
+                dossier: dossier,
+                nom: nom,
+                prenom: prenom,
+                naissance: dateInfo.date,
+                controle: false,
+                heureControle: "",
+                cartouches: 0,
+                bouteilles: 0
+            });
+            
+            console.log("✓ Passager trouvé:", nom, prenom, dateInfo.date, dossier);
+        }
+    });
 }
 
 // ==================== RECHERCHE ====================
