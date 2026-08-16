@@ -2,7 +2,7 @@ let passagers = [];
 let stream = null;
 let tesseractInitialized = false;
 const LONGUEUR_MIN_NOM = 2;
-const REGEX_NOM_MAJUSCULE = /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆÑ]+(?:[-'’][A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆÑ]+)*$/;
+const REGEX_NOM_MAJUSCULE = /^[A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆÑ]+(?:[-''][A-ZÀÂÄÇÈÉÊËÎÏÔÙÛÜŒÆÑ]+)*$/;
 
 function estNomValide(mot, source, type = "nom") {
     const motNormalise = (mot || "").trim().toUpperCase();
@@ -195,9 +195,12 @@ function rechercherInstantane() {
         html += `
             <div class="passager ${p.controle ? 'deja-controle' : 'non-controle'}">
 
-                <strong>
-                    ${p.nom} ${p.prenom}
-                </strong><br>
+                <div class="passenger-nom">
+                    ${p.nom}
+                </div>
+                <div class="passenger-prenom">
+                    ${p.prenom}
+                </div>
 
                 <span class="passenger-detail">
                     Date de naissance : ${p.naissance || "-"}
@@ -534,7 +537,12 @@ function afficherResultatsScanner(resultats) {
         const p = resultats[0];
         listeResultats.innerHTML = `
             <div class="passager non-controle">
-                <strong>${p.nom} ${p.prenom}</strong><br>
+                <div class="passenger-nom">
+                    ${p.nom}
+                </div>
+                <div class="passenger-prenom">
+                    ${p.prenom}
+                </div>
                 <span class="passenger-detail">Date : ${p.naissance}</span><br>
                 <button onclick="validerControle(${p.id}); fermerScanner();" class="btn-control">
                     ✓ Valider ce passager
@@ -549,7 +557,12 @@ function afficherResultatsScanner(resultats) {
     resultats.forEach(p => {
         html += `
             <div class="passager non-controle">
-                <strong>${p.nom} ${p.prenom}</strong><br>
+                <div class="passenger-nom">
+                    ${p.nom}
+                </div>
+                <div class="passenger-prenom">
+                    ${p.prenom}
+                </div>
                 <span class="passenger-detail">Date : ${p.naissance}</span><br>
                 <button onclick="validerControle(${p.id}); fermerScanner();" class="btn-control">
                     ✓ C'est lui
